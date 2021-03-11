@@ -13,5 +13,3 @@ CREATE TABLE skills (
     name VARCHAR(50) NOT NULL,
     rating INT NOT NULL
 );
-
-INSERT INTO hackers (company, email, name, phone, picture) values ('Google', 'bob@gmail.com', 'BOB', '647575565', 'ITS A PIC');

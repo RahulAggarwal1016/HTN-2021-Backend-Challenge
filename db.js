@@ -1,3 +1,6 @@
+// db.js connects to the database automatically using enviornment variables
+
+require('dotenv').config();
 const { Pool } = require('pg');
 
 const pool = new Pool();
