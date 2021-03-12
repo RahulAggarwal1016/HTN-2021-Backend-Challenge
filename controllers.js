@@ -6,7 +6,6 @@ const { queryCreator } = require('./helpers');
 // controller for the route - GET localhost:5000/users/
 exports.getUsers = async (req, res, next) => {
   try {
-    // grab all hackers from db
     const hackers = await db.query('select * from hackers');
 
     // query each hacker's unique skills (unResolvedPromises is an array of promises)
@@ -36,10 +35,12 @@ exports.getUsers = async (req, res, next) => {
 exports.getUser = async (req, res, next) => {
   const { id } = req.params;
   try {
-    // grab specific hacker from db
     const hacker = await db.query('select * from hackers where id = $1', [id]);
 
-    // grab hackers specific skills from db
+    if (!hacker.rows.length) {
+      throw new Error(`User with id "${id}" not found.`);
+    }
+
     const skills = await db.query(
       'select name, rating from skills where hacker_id = $1',
       [id]
@@ -48,7 +49,7 @@ exports.getUser = async (req, res, next) => {
       ...hacker.rows[0],
       skills: skills.rows,
     };
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -56,9 +57,13 @@ exports.getUser = async (req, res, next) => {
 
 // controller from the route - PUT localhost:5000/users/:id
 exports.updateUser = async (req, res, next) => {
-  const { id } = req.params;
-  const { skills, ...rest } = req.body;
   try {
+    if (!Object.keys(req.body).length) {
+      throw new Error('Update body cannot be empty');
+    }
+    const { id } = req.params;
+    const { skills, ...rest } = req.body;
+
     let result = {};
 
     // if user wants to update a hacker's "non-skills" information
@@ -69,7 +74,6 @@ exports.updateUser = async (req, res, next) => {
         ...updated.rows[0],
       };
     } else {
-      // return the hacker from the db
       const hacker = await db.query('select * from hackers where id = $1', [
         id,
       ]);
@@ -89,22 +93,23 @@ exports.updateUser = async (req, res, next) => {
         (skill) => skill.name
       );
 
-      const promises = skills.map(async (skill) => {
-        // if skill needs to be updated
-        if (existing_skills_array.includes(skill.name)) {
-          return await db.query(
-            'UPDATE skills SET rating = $1 where hacker_id = $2 AND name = $3',
-            [skill.rating, id, skill.name]
-          );
-        } else {
-          // if skill needs to be added to db
-          return await db.query(
-            'INSERT into skills (hacker_id, name, rating) values ($1, $2, $3)',
-            [id, skill.name, skill.rating]
-          );
-        }
-      });
-      await Promise.all(promises);
+      await Promise.all(
+        skills.map(async (skill) => {
+          // if skill needs to be updated
+          if (existing_skills_array.includes(skill.name)) {
+            return await db.query(
+              'UPDATE skills SET rating = $1 where hacker_id = $2 AND name = $3',
+              [skill.rating, id, skill.name]
+            );
+          } else {
+            // if skill needs to be added to db
+            return await db.query(
+              'INSERT into skills (hacker_id, name, rating) values ($1, $2, $3)',
+              [id, skill.name, skill.rating]
+            );
+          }
+        })
+      );
     }
 
     // fetch the users hackers (will either have new or updated skills at this point)
@@ -118,7 +123,6 @@ exports.updateUser = async (req, res, next) => {
     };
     res.json(result);
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };
@@ -130,6 +134,14 @@ exports.getSkills = async (req, res, next) => {
   const max = parseInt(max_frequency);
 
   try {
+    if (min > max) {
+      throw new Error(
+        'Minimum frequency cannot be greater than maximum frequency'
+      );
+    }
+    if (min < 0 || max < 0) {
+      throw new Error('Cannot have negative frequency');
+    }
     const skills = await db.query(
       `SELECT name, COUNT(*) as frequency from skills GROUP BY name HAVING COUNT(*) >= ${min} and COUNT(*) <= ${max}`
     );
