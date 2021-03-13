@@ -33,9 +33,9 @@ PGPORT=
 
 You can choose whichever port you would like to run the project on. As for the postgres credentials, you must fill those out in accordance with your local PSQL database. The `new Pool()` function within `db.js` will automatically sense thsese variables and connect to your database.
 
-6. Run the `npm run insert` to execute the insertData.js file which will fetch the data from our local json file and insert it into our database. Once the message `Data successfully added!` has been logged to the terminal you can stop the quit the file execution.
+7. Run the `npm run insert` to execute the insertData.js file which will fetch the data from our local json file and insert it into our database. Once the message `Data successfully added!` has been logged to the terminal you can stop the quit the file execution.
 
-7. Run `npm run dev` to start the server and begin making requests.
+8. Run `npm run dev` to start the server and begin making requests.
 
 ## Routes
 
