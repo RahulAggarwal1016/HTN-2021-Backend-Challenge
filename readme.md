@@ -10,15 +10,15 @@ If you have any questions about my submission feel free to email me at  [rahulag
 
 The following steps must be completed in order to get started with this API.
 
-1. Git Clone the Project using `git clone url`
+1. Git Clone the Project using `git clone https://github.com/RahulAggarwal1016/HTN-2021-Backend-Challenge.git`
 
-2. Open the project in the code editor of your choice (i.e VsCode) and cd into the root main directory
+2. Open the project in the code editor of your choice (i.e Vscode) and cd into the root main directory
 
 3. Install the project's dependencies (listed more indepth below) by running `npm install`. This command will require that [node.js](https://nodejs.org/en/) be installed.
 
-4. In order to query the data designed for this API, we will need to insert the contents of `hacker-data-2021.json` into a local database. For this project, I have chosen to use Postgres. To setup PSQL please follow the official documentation which can be viewed here: https://www.postgresql.org/.
+4. In order to query the data designed for this API, you will need to insert the contents of `hacker-data-2021.json` into a local database. For this project, I have chosen to use Postgres. To setup PSQL please follow the official documentation which can be viewed here: https://www.postgresql.org/.
 
-5. After connecting to a local instance of a PSQL database, we need to create tables that must follow a specific structure. For now, run the sql commands outlined in `db.sql` (ensure the hackers table is created first). More information regarding these commands and the choice of data types is listed below.
+5. After connecting to a local instance of a PSQL database, we need to create tables that must follow a specific structure. For now, run the sql commands outlined in `db.sql` (ensure the hackers table is created first). More information regarding these commands and the choice of data types will be listed below.
 
 6. Create a `.env` file to hold the project's enviornmental variables as follows
 
@@ -31,9 +31,9 @@ PGPASSWORD=
 PGPORT=
 ```
 
-You can choose whichever port you would like to run the project on. As for the postgres credentials, you must fill those out in accordance with your local PSQL database. The `new Pool()` function within `db.js` will automatically sense thsese variables and connect to your database.
+You can choose whichever port you would like to run the project on. As for the postgres credentials, you must fill those out in accordance with your local PSQL database. The `new Pool()` function within `db.js` will automatically sense these variables and connect to your database.
 
-7. Run the `npm run insert` to execute the insertData.js file which will fetch the data from our local json file and insert it into our database. Once the message `Data successfully added!` has been logged to the terminal you can stop the quit the file execution.
+7. Run the `npm run insert` to execute the insertData.js file which will fetch the data from our local json file and insert it into the database. Once the message `Data successfully added!` has been logged to the terminal you can stop the file execution.
 
 8. Run `npm run dev` to start the server and begin making requests.
 
@@ -66,9 +66,7 @@ CREATE TABLE hackers (
 );
 ```
 
-The columns and types match those defined in the challenge instructions however note that the `VARCHAR(50)` type was used for name and `TEXT` for the other string fields. When bringing this API to production, VARCHAR's may be better suited for string fields that should expect a cap on their character count. For simplicitly, I used the type `TEXT` for the majority of my fields.
-
-Additionally, I added an `id` proprty of type `BIGSERIAL PRIMARY KEY` to ensure that I had a unique identifier for each user.
+The columns and types match those defined in the challenge instructions however note that the `VARCHAR(50)` type was used for name and `TEXT` for the other string fields. When bringing this API to production, VARCHAR's may be better suited for string fields that should expect a cap on their character count. For simplicitly, I used the type `TEXT` for the majority of my fields. Additionally, I added an `id` proprty of type `BIGSERIAL PRIMARY KEY` to ensure that I had a unique identifier for each user.
 
 The second table is designed to contain user's skills.
 
@@ -81,7 +79,7 @@ CREATE TABLE skills (
 );
 ```
 
-I added a foreign key `hacker_id` to map each skill to a specifc user (every skill's `hacker_id` corresponds to a user's unique `id`). Similar to the hackers table, I laos added an `id` to each skill.
+I added a foreign key `hacker_id` to map each skill to a specifc user (every skill's `hacker_id` corresponds to a user's unique `id`). Similar to the hackers table, I laos added an `id` to uniquely identify each skill.
 
 ## Dependencies
 
@@ -100,11 +98,11 @@ The following are the dependencies used in the development of this API
 
 `Cors` - to control which urls can access this api, for now any url will have access
 
-`Dotenv` - to allow for the use of private enviornment variables within the application
+`Dotenv` - to allow for the use of enviornment variables within the application
 
-`Express` - to create a server to serve as the base of the API
+`Express` - to create a basic server
 
-`Helmet` - to secure set various varius Express and HTTP headers
+`Helmet` - to configure various Express and HTTP headers
 
 `Morgan` - to log requests while in development
 
@@ -118,7 +116,7 @@ The API's entry point and the file where the "app" is setup to begin listening f
 
 ### App.js
 
-The application's routes are defined in this file. Additionally, all middlewares that have been created as well as imported from online are configured.
+The application's routes are defined in this file. Additionally, all middlewares that have been created as well as imported from online are configured here.
 
 ### Middlewares.js
 
@@ -130,7 +128,7 @@ Contains the following custom middleware functions
 
 ### Controllers.js
 
-Contains each route-specific controller. The logic for each route was put into a seperate file in order to enhance code organization and readibility.
+Contains the API's roue-specific controller. The logic for each route was put into a seperate file in order to enhance code organization and readibility.
 
 ## Future Improvements
 
@@ -142,10 +140,8 @@ Given that this is a development version of the API, there are specific aspects 
 
 ### Code Optimization
 
-One of the best ways to optimize the performance an API is to reduce the number of database queries made upon each request.
+One of the best ways to optimize the performance an API is to reduce the number of database queries made upon each request. In light of this, I would like to acknowledge that the way I structured my tables and database may not have been the most performant. Having two tables to represent a user meant that I had to make twice as many database calls per request (to grab both the skills and non-skills information). This caused some of the route logic to be unnecssiarly complex and complicated (i.e the user update route).
 
-In light of this, I would like to acknowledge that the way I structured my tables and database may not have been the most performant. Having two tables to represent a user meant that I had to make twice as many database calls per request (to grab both the skills and non-skills information). This caused some of the route logic to be unnecssiarly complex and complicated (i.e the user update route).
-
-This efficiency of this API could also be improved by for example, excluding the query of each 1000+ user's skills when hitting the `GET localhost:5000/users/` route.  Instead, if somebody wanted to find out more information regarding a specific user's skills they could hit the `GET localhost:5000/users/:id` route.
+The efficiency of this API could also be improved by for example, excluding the query of each 1000+ user's skills when hitting the `GET localhost:5000/users/` route.  Instead, if somebody wanted to find out more information regarding a specific user's skills they could hit the `GET localhost:5000/users/:id` route.
 
 __Phew, this was a long README. If you read all the way to the end thank you very very much, it means a lot to me considering the time and effort I spent on this challenge submission. I had a ton of fun making this API and learned a lot along the way.__
