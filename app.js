@@ -18,7 +18,7 @@ app.use(express.json());
 app.disable('x-powered-by');
 
 app.get('/', (req, res, next) => {
-  res.send({
+  res.status(200).send({
     message: 'Hack the North 2021 - Backend Challenge',
     author: 'Rahul Aggarwal',
   });
@@ -29,7 +29,7 @@ app.get('/users/:id', controllers.getUser);
 app.put('/users/:id', controllers.updateUser);
 app.get('/skills', controllers.getSkills);
 
-// middlewares for unknown route and errors
+// middlewares for unknown routes and errors
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 
